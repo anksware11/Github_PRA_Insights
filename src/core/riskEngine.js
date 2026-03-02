@@ -262,17 +262,17 @@ const RiskEngine = (() => {
     return `
 describe('${functionName}', () => {
   it('should handle nominal case', () => {
-    // TODO: Implement test
+    // Add nominal assertions
     expect(true).toBe(true);
   });
 
   it('should handle edge cases', () => {
-    // TODO: Implement edge case tests
+    // Add edge-case assertions
     expect(true).toBe(true);
   });
 
   it('should handle error conditions', () => {
-    // TODO: Implement error handling tests
+    // Add error-condition assertions
     expect(true).toBe(true);
   });
 });

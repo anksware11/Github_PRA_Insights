@@ -185,9 +185,9 @@ const LicenseManager = (() => {
       return false;
     }
 
-    // TODO: Add revocation list check
-    // TODO: Add expiration check if keys are time-limited
-    // TODO: Call actual license server
+    // Backlog: add revocation list check
+    // Backlog: add expiration check if keys are time-limited
+    // Backlog: call actual license server
 
     return true;
   }

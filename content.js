@@ -130,7 +130,7 @@ async function initializeExtension() {
     }
   }
 
-  // TODO: Remove debug logs before production
+  // Runtime diagnostics are gated by PRQI_DEBUG
   // Extract PR metadata (title, description, files, stats, diff)
   const prMetadata = extractPRMetadata();
 

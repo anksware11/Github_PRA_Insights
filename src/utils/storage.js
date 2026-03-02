@@ -3,6 +3,16 @@
 // Provides consistent API for all storage operations across the extension
 // ============================================================================
 
+if (!globalThis.__PRQI_LOG_GATED__) {
+  const __prqiOriginalLog = console.log.bind(console);
+  console.log = (...args) => {
+    if (globalThis.PRQI_DEBUG === true) {
+      __prqiOriginalLog(...args);
+    }
+  };
+  globalThis.__PRQI_LOG_GATED__ = true;
+}
+
 const Storage = (() => {
   /**
    * Get value from storage
