@@ -66,6 +66,17 @@
             border-radius: 5px;
             box-shadow: 0 0 8px rgba(0,0,0,0.2);
         }
+        .gallery {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .gallery img {
+            width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        }
         footer {
             text-align: center;
             margin: 40px 0;
@@ -124,8 +135,13 @@
     </div>
 
     <div class="screenshot">
-        <img src="https://via.placeholder.com/600x400.png?text=Extension+UI+Mockup" alt="PR Analyzer AI Screenshot">
-        <p class="note">Screenshot mockup for demonstration purposes</p>
+        <img src="assets/store-screenshots/02-modal.png" alt="PR Analyzer AI Screenshot - Subscribe Modal">
+        <p class="note">Extension interaction preview</p>
+    </div>
+
+    <div class="gallery">
+        <img src="assets/store-screenshots/01-home.png" alt="PR Analyzer AI Screenshot - Home View">
+        <img src="assets/store-screenshots/03-popup.png" alt="PR Analyzer AI Screenshot - Popup View">
     </div>
 
     <button class="button" id="subscribeBtn">Subscribe for Pro</button>
