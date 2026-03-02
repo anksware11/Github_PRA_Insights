@@ -18,8 +18,11 @@ Bundle: `dist/pr-quick-insight-v1.1.zip`
 
 ## 3) Visual Assets (Manual)
 
-- [ ] App icon is included in package (`assets/icons/icon-128.png`)
-- [ ] Add required store screenshots (Chrome Web Store requirement)
+- [x] App icon ready: `assets/icons/icon-128.png` (validated 128x128 PNG)
+- [x] Screenshots prepared (1280x800 PNG):
+  - `assets/store-screenshots/01-home.png`
+  - `assets/store-screenshots/02-modal.png`
+  - `assets/store-screenshots/03-popup.png`
 - [ ] Add optional promo graphics if desired
 
 ## 4) Privacy & Data Disclosure
