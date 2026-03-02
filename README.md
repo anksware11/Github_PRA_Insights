@@ -6,6 +6,11 @@ A lightweight Chrome extension that analyzes GitHub Pull Requests using OpenAI's
 
 Analyze GitHub pull requests with AI-powered risk detection, security checks, and actionable review guidance directly in your browser.
 
+## Website
+
+- GitHub Pages: https://anksware11.github.io/Github_PRA_Insights/
+- Use this URL for LemonSqueezy and Chrome Web Store listing submissions
+
 ## Pricing
 
 - Free Plan: Limited daily scans
