@@ -4,8 +4,6 @@ A lightweight Chrome extension that analyzes GitHub Pull Requests using OpenAI's
 
 ## Product Details
 
-### AI GitHub PR Analyzer
-
 Analyze GitHub pull requests with AI-powered risk detection, security checks, and actionable review guidance directly in your browser.
 
 ## Pricing
