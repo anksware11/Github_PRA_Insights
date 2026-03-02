@@ -1,0 +1,117 @@
+<!-- Premium Cyberpunk DevSecOps Dashboard Sidebar -->
+<!-- To be injected by content.js into GitHub PR pages -->
+
+<div id="pr-quick-insight-panel">
+  <!-- Header -->
+  <div class="prs-header">
+    <div class="prs-title">⚡ PR AUDIT</div>
+    <button id="prs-close-btn" class="prs-close-btn" title="Close">×</button>
+  </div>
+
+  <!-- Content -->
+  <div class="prs-content">
+    <!-- Analyze Button (shown initially) -->
+    <button id="prs-analyze-btn" class="prs-analyze-btn">
+      ▶ SCAN PR
+    </button>
+
+    <!-- Loading State -->
+    <div id="prs-loading" style="display: none;">
+      <div class="prs-loading">
+        <div class="prs-spinner"></div>
+        <p>ANALYZING CODEBASE...</p>
+      </div>
+    </div>
+
+    <!-- Results (hidden initially) -->
+    <div id="prs-results" class="prs-results" style="display: none;">
+
+      <!-- Riskometer Section -->
+      <div class="prs-riskometer-section">
+        <div class="prs-riskometer-label">RISK ASSESSMENT</div>
+        <svg id="prs-riskometer" class="prs-riskometer-svg" viewBox="0 0 200 200">
+          <!-- Background circle -->
+          <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(57, 255, 20, 0.1)" stroke-width="2"/>
+
+          <!-- Score circle (animated) -->
+          <circle
+            id="prs-risk-circle"
+            cx="100"
+            cy="100"
+            r="90"
+            fill="none"
+            stroke="var(--neon-green)"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-dasharray="565"
+            stroke-dashoffset="565"
+            transform="rotate(-90 100 100)"
+            style="filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.6));"
+          />
+
+          <!-- Center display -->
+          <text id="prs-risk-score-text" x="100" y="95" text-anchor="middle" class="prs-risk-score" style="font-family: 'Orbitron', monospace; font-size: 42px; font-weight: 700; fill: var(--neon-green);">--</text>
+          <text x="100" y="115" text-anchor="middle" style="font-family: 'Inter', sans-serif; font-size: 10px; fill: var(--text-muted); letter-spacing: 1px;">RISK SCORE</text>
+        </svg>
+        <div id="prs-risk-level-display" class="prs-risk-level-text" style="color: var(--neon-green);">LOADING...</div>
+      </div>
+
+      <!-- Summary Section -->
+      <div class="prs-section-card">
+        <div class="prs-section-title">📋 SUMMARY</div>
+        <ul id="prs-summary-list"></ul>
+      </div>
+
+      <!-- Risk Level Badge -->
+      <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+        <div id="prs-risk-level" class="prs-risk-badge"></div>
+      </div>
+
+      <!-- Security Issues (conditional) -->
+      <div class="prs-section-card" id="prs-security-section-container" style="display: none;">
+        <div class="prs-section-title">🔐 SECURITY ISSUES</div>
+        <ul id="prs-security-issues" class="prs-alert-list"></ul>
+      </div>
+
+      <!-- Breaking Changes (conditional) -->
+      <div class="prs-section-card" id="prs-breaking-section-container" style="display: none;">
+        <div class="prs-section-title">⚠️ BREAKING CHANGES</div>
+        <ul id="prs-breaking-changes" class="prs-alert-list"></ul>
+      </div>
+
+      <!-- Quality Section -->
+      <div class="prs-section-card">
+        <div class="prs-section-title">🎯 QUALITY METRICS</div>
+        <div class="prs-quality-row">
+          <div class="prs-quality-item">
+            <div class="prs-quality-label">Test Coverage</div>
+            <div id="prs-test-coverage" class="prs-quality-value">--</div>
+          </div>
+          <div class="prs-quality-item">
+            <div class="prs-quality-label">Commit Message</div>
+            <div id="prs-commit-quality" class="prs-quality-value"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggested Commit Message (conditional) -->
+      <div class="prs-section-card prs-commit-section" id="prs-commit-suggestion-container" style="display: none;">
+        <div class="prs-section-title">💡 SUGGESTED MESSAGE</div>
+        <textarea id="prs-suggested-commit" class="prs-commit-textarea" readonly rows="3"></textarea>
+        <button id="prs-copy-commit-btn" class="prs-copy-btn">📋 COPY TO CLIPBOARD</button>
+      </div>
+
+      <!-- Critical Issues -->
+      <div class="prs-section-card prs-issues-section">
+        <div class="prs-section-title">🔍 CRITICAL ISSUES</div>
+        <ul id="prs-issues-list"></ul>
+      </div>
+
+      <!-- Analyze Again Button -->
+      <button id="prs-reset-btn" class="prs-reset-btn">↻ SCAN AGAIN</button>
+    </div>
+
+    <!-- Error Message (hidden initially) -->
+    <div id="prs-error" class="prs-error" style="display: none;"></div>
+  </div>
+</div>

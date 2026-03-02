@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PR Audit Report – Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-page:      #07070f;
+      --bg-card:      #111128;
+      --bg-card-alt:  #0d0d22;
+      --border:       rgba(57,255,20,0.18);
+      --border-dim:   rgba(255,255,255,0.07);
+      --neon-green:   #39FF14;
+      --neon-cyan:    #00f5ff;
+      --neon-red:     #ff1744;
+      --neon-yellow:  #ffd600;
+      --neon-orange:  #ff6d00;
+      --sev-critical: #ff1744;
+      --sev-high:     #ff6d00;
+      --sev-medium:   #ffd600;
+      --sev-low:      #39FF14;
+      --text-primary: #e2e8f0;
+      --text-secondary:#94a3b8;
+      --text-muted:   #4b5563;
+      --font-display: 'Orbitron', monospace;
+      --font-body:    'Inter', system-ui, sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+    }
+    html { font-size: 14px; scroll-behavior: smooth; }
+    body { background: var(--bg-page); color: var(--text-primary); font-family: var(--font-body); line-height: 1.6; min-height: 100vh; }
+
+    /* ── Toggle bar ─── */
+    .preview-toggle {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      background: rgba(7,7,15,0.95); border-bottom: 1px solid var(--border);
+      padding: 10px 20px; display: flex; align-items: center; gap: 12px;
+      font-family: var(--font-display); font-size: 10px; letter-spacing: 1px;
+    }
+    .preview-toggle span { color: var(--text-muted); }
+    .toggle-btn {
+      padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border-dim);
+      background: transparent; color: var(--text-secondary); cursor: pointer;
+      font-family: var(--font-display); font-size: 10px; letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active { border-color: var(--neon-green); color: var(--neon-green); background: rgba(57,255,20,0.08); }
+    .toggle-btn:hover:not(.active) { border-color: var(--text-secondary); color: var(--text-primary); }
+
+    /* ── Layout ── */
+    .page-wrap { max-width: 960px; margin: 0 auto; padding: 80px 20px 60px; }
+
+    /* ── Header ── */
+    .page-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding-bottom:20px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+    .page-title { font-family:var(--font-display); font-size:22px; font-weight:900; color:var(--neon-green); letter-spacing:2px; text-shadow:0 0 20px rgba(57,255,20,0.4); }
+    .snapshot-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border:1px solid rgba(0,245,255,0.4); border-radius:20px; font-size:11px; color:var(--neon-cyan); letter-spacing:1px; font-family:var(--font-display); }
+
+    /* ── Snapshot Bar ── */
+    .snapshot-bar { background:var(--bg-card-alt); border:1px solid var(--border-dim); border-radius:var(--radius); padding:12px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin-bottom:24px; font-size:12px; color:var(--text-secondary); }
+    .snapshot-bar a { color:var(--neon-cyan); text-decoration:none; }
+    .snapshot-bar a:hover { text-decoration:underline; }
+    .snapshot-meta-item { display:flex; align-items:center; gap:5px; }
+    .snapshot-meta-label { color:var(--text-muted); }
+    .reopen-btn { margin-left:auto; padding:5px 12px; background:transparent; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-secondary); font-size:11px; cursor:pointer; transition:all 0.2s; font-family:var(--font-display); letter-spacing:1px; }
+    .reopen-btn:hover { border-color:var(--neon-green); color:var(--neon-green); }
+
+    /* ── Section ── */
+    .section { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px; }
+    .section-title { font-family:var(--font-display); font-size:12px; font-weight:700; letter-spacing:2px; color:var(--neon-green); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+    /* ── Risk Grid ── */
+    .risk-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+    @media (max-width:600px) { .risk-grid { grid-template-columns:1fr; } }
+    .risk-card { background:var(--bg-card-alt); border:1px solid var(--border-dim); border-radius:var(--radius); padding:16px; text-align:center; }
+    .risk-card-label { font-size:10px; letter-spacing:1.5px; color:var(--text-muted); font-family:var(--font-display); margin-bottom:8px; }
+    .risk-score-value { font-family:var(--font-display); font-size:48px; font-weight:900; line-height:1; margin-bottom:4px; }
+    .risk-level-chip { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:1px; }
+    .confidence-value, .release-value { font-family:var(--font-display); font-size:18px; font-weight:700; margin:8px 0 4px; }
+    .confidence-desc, .release-desc { font-size:11px; color:var(--text-secondary); }
+
+    /* ── Stats Bar ── */
+    .stats-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+    @media (max-width:600px) { .stats-bar { grid-template-columns:repeat(2,1fr); } }
+    .stat-card { background:var(--bg-card-alt); border:1px solid var(--border-dim); border-radius:var(--radius); padding:12px 16px; text-align:center; }
+    .stat-number { font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--neon-green); }
+    .stat-label { font-size:10px; color:var(--text-muted); letter-spacing:1px; margin-top:4px; }
+
+    /* ── Suggestions ── */
+    .suggestion-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--border-dim); }
+    .suggestion-item:last-child { border-bottom:none; }
+    .sev-badge { flex-shrink:0; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; }
+    .sev-Critical { background:rgba(255,23,68,0.2); color:var(--sev-critical); border:1px solid var(--sev-critical); }
+    .sev-High     { background:rgba(255,109,0,0.2); color:var(--sev-high);     border:1px solid var(--sev-high); }
+    .sev-Medium   { background:rgba(255,214,0,0.2); color:var(--sev-medium);   border:1px solid var(--sev-medium); }
+    .sev-Low      { background:rgba(57,255,20,0.15); color:var(--sev-low);     border:1px solid var(--sev-low); }
+    .suggestion-text { font-size:13px; color:var(--text-primary); line-height:1.5; }
+
+    /* ── File rows ── */
+    .file-row { padding:12px; border:1px solid var(--border-dim); border-radius:var(--radius-sm); margin-bottom:8px; background:var(--bg-card-alt); }
+    .file-row-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+    .file-name { font-family:monospace; font-size:12px; color:var(--neon-cyan); word-break:break-all; }
+    .file-issues { list-style:none; padding-left:8px; }
+    .file-issues li { font-size:12px; color:var(--text-secondary); padding:3px 0; padding-left:12px; position:relative; }
+    .file-issues li::before { content:'›'; position:absolute; left:0; color:var(--text-muted); }
+    .locked-row { opacity:0.35; position:relative; user-select:none; }
+    .locked-row-label { font-size:11px; color:var(--text-muted); letter-spacing:1px; font-family:var(--font-display); }
+
+    /* ── Code-level issue blocks ── */
+    .file-issue-list { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
+    .issue-block { border-left:2px solid var(--border-dim); padding-left:10px; }
+    .issue-description { font-size:12px; color:var(--text-primary); line-height:1.5; margin-bottom:3px; }
+    .issue-suggestion { font-size:11px; color:var(--neon-cyan); margin-bottom:8px; line-height:1.4; }
+    .code-diff { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px; }
+    @media (max-width:680px) { .code-diff { grid-template-columns:1fr; } }
+    .code-diff-block { border-radius:var(--radius-sm); overflow:hidden; }
+    .code-diff-label { font-family:var(--font-display); font-size:9px; letter-spacing:1px; padding:3px 8px; font-weight:700; }
+    .code-diff-before .code-diff-label { background:rgba(255,23,68,0.15); color:var(--sev-critical); }
+    .code-diff-after  .code-diff-label { background:rgba(57,255,20,0.12); color:var(--neon-green); }
+    .code-pre { margin:0; padding:10px; font-family:'SFMono-Regular','Consolas','Liberation Mono',monospace; font-size:11px; line-height:1.55; white-space:pre-wrap; word-break:break-all; color:var(--text-secondary); }
+    .code-diff-before .code-pre { background:rgba(255,23,68,0.06); border:1px solid rgba(255,23,68,0.15); border-top:none; }
+    .code-diff-after  .code-pre { background:rgba(57,255,20,0.05); border:1px solid rgba(57,255,20,0.15);  border-top:none; }
+
+    /* ── Upgrade Banner ── */
+    .upgrade-banner { border:1px solid rgba(0,245,255,0.3); border-radius:var(--radius); padding:20px; background:linear-gradient(135deg,rgba(0,245,255,0.04),rgba(57,255,20,0.03)); margin-top:12px; text-align:center; }
+    .upgrade-banner-headline { font-family:var(--font-display); font-size:13px; color:var(--neon-cyan); letter-spacing:1px; margin-bottom:8px; }
+    .upgrade-banner-sub { font-size:12px; color:var(--text-secondary); margin-bottom:14px; }
+    .upgrade-benefits { list-style:none; display:inline-flex; flex-direction:column; align-items:flex-start; gap:5px; margin-bottom:16px; text-align:left; }
+    .upgrade-benefits li { font-size:12px; color:var(--text-secondary); }
+    .upgrade-benefits li::before { content:'✓ '; color:var(--neon-green); font-weight:700; }
+    .upgrade-cta-btn { display:inline-block; padding:10px 24px; background:linear-gradient(135deg,var(--neon-green),#2de010); border:none; border-radius:var(--radius-sm); color:#0a0a14; font-family:var(--font-display); font-size:12px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all 0.2s; box-shadow:0 0 20px rgba(57,255,20,0.35); }
+    .upgrade-cta-btn:hover { box-shadow:0 0 32px rgba(57,255,20,0.6); transform:translateY(-1px); }
+
+    /* ── Pro Gate ── */
+    .pro-gate { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--bg-card-alt); border:1px dashed var(--border-dim); border-radius:var(--radius); margin-bottom:16px; }
+    .pro-gate-left { display:flex; flex-direction:column; gap:4px; }
+    .pro-gate-title { font-family:var(--font-display); font-size:12px; color:var(--text-secondary); letter-spacing:1px; }
+    .pro-gate-desc { font-size:11px; color:var(--text-muted); }
+    .pro-gate-lock { font-size:11px; color:var(--text-muted); letter-spacing:1px; white-space:nowrap; }
+
+    /* ── Heatmap ── */
+    .heatmap-table { width:100%; border-collapse:collapse; }
+    .heatmap-table th { text-align:left; font-size:10px; letter-spacing:1px; color:var(--text-muted); padding:4px 8px 10px; font-family:var(--font-display); }
+    .heatmap-table td { padding:8px; border-top:1px solid var(--border-dim); font-size:12px; }
+    .heatmap-table tr:hover td { background:rgba(57,255,20,0.03); }
+    .cwe-tag { display:inline-block; padding:2px 7px; border-radius:4px; font-size:10px; background:rgba(0,245,255,0.1); color:var(--neon-cyan); border:1px solid rgba(0,245,255,0.25); font-family:monospace; }
+
+    /* ── Breaking Changes ── */
+    .breaking-item { padding:10px 12px; border-left:3px solid var(--sev-medium); background:rgba(255,214,0,0.04); border-radius:0 var(--radius-sm) var(--radius-sm) 0; margin-bottom:8px; }
+    .breaking-item.major { border-left-color:var(--sev-critical); background:rgba(255,23,68,0.04); }
+    .breaking-item.minor { border-left-color:var(--sev-low); background:rgba(57,255,20,0.04); }
+    .breaking-item-label { font-size:10px; color:var(--text-muted); letter-spacing:1px; margin-bottom:4px; font-family:var(--font-display); }
+    .breaking-item-text { font-size:13px; color:var(--text-primary); }
+
+    /* ── Coverage ── */
+    .coverage-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-family:var(--font-display); font-size:13px; font-weight:700; letter-spacing:1px; }
+    .coverage-Good  { background:rgba(57,255,20,0.15); color:var(--neon-green); border:1px solid var(--neon-green); }
+    .coverage-Fair  { background:rgba(255,214,0,0.15); color:var(--neon-yellow); border:1px solid var(--neon-yellow); }
+    .coverage-Poor  { background:rgba(255,23,68,0.15); color:var(--neon-red); border:1px solid var(--neon-red); }
+
+    /* ── Export ── */
+    .export-bar { display:flex; gap:10px; flex-wrap:wrap; padding:16px; background:var(--bg-card-alt); border:1px solid var(--border-dim); border-radius:var(--radius); margin-bottom:20px; }
+    .export-btn { padding:8px 16px; border:1px solid var(--border); border-radius:var(--radius-sm); background:transparent; color:var(--text-secondary); font-size:12px; cursor:pointer; transition:all 0.2s; font-family:var(--font-display); letter-spacing:0.5px; }
+    .export-btn:hover { border-color:var(--neon-green); color:var(--neon-green); }
+
+    /* ── Color helpers ── */
+    .color-low    { color:var(--neon-green); }
+    .color-medium { color:var(--neon-yellow); }
+    .color-high   { color:var(--neon-red); }
+    .bg-low    { background:rgba(57,255,20,0.12);  border-color:var(--neon-green); }
+    .bg-medium { background:rgba(255,214,0,0.12);  border-color:var(--neon-yellow); }
+    .bg-high   { background:rgba(255,23,68,0.12);  border-color:var(--neon-red); }
+  </style>
+</head>
+<body>
+
+<!-- ── Toggle (FREE vs PRO preview) ─────────────────────────────────────── -->
+<div class="preview-toggle">
+  <span>PREVIEW MODE:</span>
+  <button class="toggle-btn active" id="btn-free" onclick="renderAll(false)">FREE PLAN</button>
+  <button class="toggle-btn"        id="btn-pro"  onclick="renderAll(true)">PRO PLAN</button>
+  <span style="margin-left:auto;color:var(--text-muted);">← not in production; demo only →</span>
+</div>
+
+<!-- ── Report wrapper ──────────────────────────────────────────────────── -->
+<div class="page-wrap" id="report-root"></div>
+
+<script>
+// ============================================================================
+// MOCK DATA  –  simulates a real latestReport snapshot
+// ============================================================================
+const MOCK_REPORT = {
+  generatedAt:  Date.now() - 4 * 60 * 1000, // 4 minutes ago
+  snapshotVersion: '1.0',
+  commitHash:   'a3f9c1d84b712e5',
+  prUrl:        'https://github.com/vuejs/core/pull/11423',
+  prTitle:      'feat(reactivity): add batch scheduler with priority queue',
+  repo:         'vuejs/core',
+  filesChanged: 23,
+  additions:    847,
+  deletions:    312,
+  riskScore:    74,
+  riskLevel:    'High',
+  summary: [
+    'Introduces a new batch scheduler that replaces direct queue flush calls',
+    'Priority queue implementation changes reactivity flush order',
+    'Three new public APIs added without deprecation path for old ones'
+  ],
+  topIssues: [
+    'New BatchScheduler.flush() API conflicts with existing scheduler.flushSync() — no migration path provided',
+    'PriorityQueue.enqueue() modifies shared mutable state without locking — race condition in async context',
+    'Direct access to internal __pending queue bypasses scheduler validation and may cause infinite loops',
+    'Missing test coverage for edge cases: empty queue flush, priority inversion, and scheduler teardown',
+    'Changelog entry missing — reviewers cannot assess semver impact without documented breaking changes'
+  ],
+  securityIssues: [
+    { file: 'packages/reactivity/src/scheduler.ts', type: 'Prototype Pollution', description: 'User-supplied priority values merged into queue config without sanitization', severity: 'Critical', cwe: 'CWE-1321' },
+    { file: 'packages/runtime-core/src/batch.ts',   type: 'ReDoS',              description: 'Regex pattern in error message formatter is unbounded on malformed input', severity: 'High',     cwe: 'CWE-400'  },
+    { file: 'packages/runtime-core/src/batch.ts',   type: 'Unchecked Input',    description: 'batchId cast to number without validation — NaN propagates silently',      severity: 'Medium',   cwe: 'CWE-20'   },
+    { file: 'packages/shared/src/utils.ts',          type: 'Info Leak',          description: 'Stack traces exposed in production error objects via __DEV__ guard bypass', severity: 'Low',      cwe: 'CWE-209'  }
+  ],
+  enhancedSecurityIssues: [
+    { file: 'packages/reactivity/src/scheduler.ts', type: 'Prototype Pollution', description: 'User-supplied priority values merged into queue config without sanitization', severity: 'Critical', cwe: 'CWE-1321' },
+    { file: 'packages/runtime-core/src/batch.ts',   type: 'ReDoS',              description: 'Regex pattern in error message formatter is unbounded on malformed input', severity: 'High',     cwe: 'CWE-400'  },
+    { file: 'packages/runtime-core/src/batch.ts',   type: 'Unchecked Input',    description: 'batchId cast to number without validation — NaN propagates silently',      severity: 'Medium',   cwe: 'CWE-20'   },
+    { file: 'packages/shared/src/utils.ts',          type: 'Info Leak',          description: 'Stack traces exposed in production error objects via __DEV__ guard bypass', severity: 'Low',      cwe: 'CWE-209'  }
+  ],
+  breakingChanges: [
+    { impact: 'major', description: 'scheduler.flushSync() removed — callers must migrate to BatchScheduler.flush({ sync: true })' },
+    { impact: 'major', description: 'watchEffect() no longer accepts a priority option; existing code using priority will silently no-op' },
+    { impact: 'minor', description: 'queuePostFlushCb() callback signature changed — first argument is now the batch context object' }
+  ],
+  testCoverage: {
+    level: 'Fair',
+    detail: '61% line coverage on new scheduler files. Priority queue and teardown paths have zero coverage.',
+    recommendations: [
+      'Add unit tests for PriorityQueue.enqueue() with equal-priority items',
+      'Add test for scheduler teardown while queue is non-empty',
+      'Add integration test for nested batch flushes to catch infinite-loop regression',
+      'Verify watchEffect behavior when priority option is passed (now silently ignored)'
+    ]
+  },
+  fileSuggestions: [
+    { file: 'packages/reactivity/src/scheduler.ts', severity: 'Critical', issues: [
+      {
+        description: 'User-supplied priority values merged into queue config without sanitization — allows prototype pollution (CWE-1321).',
+        suggestion: 'Validate priority is a finite number within an allowed range before assigning to config.',
+        codeBefore:
+`function setQueueConfig(userConfig) {
+  Object.assign(this._config, userConfig);
+}`,
+        codeAfter:
+`const ALLOWED_PRIORITIES = new Set([0, 1, 2, 3]);
+
+function setQueueConfig(userConfig) {
+  if (!ALLOWED_PRIORITIES.has(userConfig.priority)) {
+    throw new TypeError('Invalid priority value');
+  }
+  this._config.priority = userConfig.priority;
+}`
+      },
+      {
+        description: 'BatchScheduler public API has no JSDoc — downstream consumers cannot infer types or usage contracts.',
+        suggestion: 'Add JSDoc comments to all exported methods.',
+        codeBefore:
+`export function flush(options) {
+  // ...
+}`,
+        codeAfter:
+`/**
+ * Flush the batch queue.
+ * @param {{ sync?: boolean }} options
+ */
+export function flush(options = {}) {
+  // ...
+}`
+      }
+    ]},
+    { file: 'packages/runtime-core/src/batch.ts', severity: 'High', issues: [
+      {
+        description: 'Regex in error formatter is unbounded — crafted input can cause catastrophic backtracking (ReDoS, CWE-400).',
+        suggestion: 'Add a maxLength guard before applying the regex, or replace with a non-backtracking alternative.',
+        codeBefore:
+`const msg = input.replace(
+  /(\w+)\s*:\s*(\w+(?:\s*,\s*\w+)*)/g,
+  (_, k, v) => \`\${k}=[\${v}]\`
+);`,
+        codeAfter:
+`const MAX_INPUT = 500;
+const safe = input.length > MAX_INPUT
+  ? input.slice(0, MAX_INPUT) + '…'
+  : input;
+const msg = safe.replace(/(\w+):\s*([\w,\s]+)/g,
+  (_, k, v) => \`\${k}=[\${v.trim()}]\`
+);`
+      },
+      {
+        description: 'batchId cast directly to Number() without validation — NaN silently propagates through the queue.',
+        suggestion: 'Validate the parsed value and throw early if it is not a finite positive integer.',
+        codeBefore:
+`const id = Number(rawBatchId);
+queue.add(id, task);`,
+        codeAfter:
+`const id = Number(rawBatchId);
+if (!Number.isFinite(id) || id <= 0) {
+  throw new RangeError(\`Invalid batchId: \${rawBatchId}\`);
+}
+queue.add(id, task);`
+      }
+    ]},
+    { file: 'packages/reactivity/src/effect.ts', severity: 'High', issues: [
+      {
+        description: 'trackEffects() called before scheduler is initialized in the SSR code path — causes silent no-op tracking.',
+        suggestion: 'Add a scheduler readiness guard at the top of trackEffects().',
+        codeBefore:
+`export function trackEffects(dep) {
+  dep.add(activeEffect!);
+}`,
+        codeAfter:
+`export function trackEffects(dep) {
+  if (!isSchedulerReady()) return;
+  dep.add(activeEffect!);
+}`
+      }
+    ]},
+    { file: 'packages/shared/src/utils.ts', severity: 'Medium', issues: [
+      {
+        description: 'Stack traces exposed in production error objects via a __DEV__ guard that can be bypassed by bundler misconfiguration.',
+        suggestion: 'Use a dedicated EXPOSE_STACK flag independent of __DEV__ so production builds are protected regardless of bundler settings.',
+        codeBefore:
+`if (__DEV__) {
+  err.stack = captureStack();
+}`,
+        codeAfter:
+`if (process.env.EXPOSE_STACK === 'true') {
+  err.stack = captureStack();
+}`
+      }
+    ]},
+    { file: 'packages/runtime-core/src/componentProps.ts', severity: 'Medium', issues: [
+      {
+        description: 'initProps() does not reset scheduler priority after component mount — stale priority leaks into subsequent renders.',
+        suggestion: 'Reset priority to default at the end of initProps() to prevent cross-component contamination.',
+        codeBefore:
+`export function initProps(instance, rawProps) {
+  normalizeProps(instance, rawProps);
+}`,
+        codeAfter:
+`export function initProps(instance, rawProps) {
+  normalizeProps(instance, rawProps);
+  instance._schedulerPriority = DEFAULT_PRIORITY;
+}`
+      }
+    ]},
+    { file: 'CHANGELOG.md', severity: 'Medium', issues: [
+      {
+        description: 'No changelog entry for this PR — semver impact and breaking changes are invisible to downstream consumers.',
+        suggestion: 'Add a BREAKING CHANGE block and migration guide for the scheduler.flushSync() removal.',
+        codeBefore: `## [Unreleased]
+<!-- No entries yet -->`,
+        codeAfter:
+`## [Unreleased]
+
+### ⚠ BREAKING CHANGES
+- \`scheduler.flushSync()\` removed. Migrate to:
+  \`BatchScheduler.flush({ sync: true })\`
+- \`watchEffect()\` no longer accepts a \`priority\` option.`
+      }
+    ]}
+  ],
+  totalSuggestions: 18
+};
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str == null ? '' : str);
+  return d.innerHTML;
+}
+function fmt(ts) {
+  if (!ts) return 'Unknown';
+  return new Date(ts).toLocaleString(undefined, { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+function upgradeBanner(visible, total) {
+  const hidden = Math.max(0, total - visible);
+  return `
+    <div class="upgrade-banner">
+      <div class="upgrade-banner-headline">🔒 ${hidden} more file${hidden!==1?'s':''} locked</div>
+      <div class="upgrade-banner-sub">Upgrade to Pro to see all ${total} flagged files with full issue details.</div>
+      <ul class="upgrade-benefits">
+        <li>All file-level suggestions (unlimited)</li>
+        <li>Security heatmap with CWE tags</li>
+        <li>Breaking change deep analysis</li>
+        <li>Test coverage gap report</li>
+        <li>Export to PDF / Markdown</li>
+      </ul>
+      <button class="upgrade-cta-btn">🚀 Unlock Pro – Lifetime Access</button>
+    </div>`;
+}
+function proGate(title, desc) {
+  return `<div class="pro-gate">
+    <div class="pro-gate-left">
+      <span class="pro-gate-title">${esc(title)}</span>
+      <span class="pro-gate-desc">${esc(desc)}</span>
+    </div>
+    <span class="pro-gate-lock">🔒 PRO</span>
+  </div>`;
+}
+
+// ============================================================================
+// RENDER
+// ============================================================================
+function renderIssueBlock(issue) {
+  if (typeof issue === 'string') {
+    return `<div class="issue-block"><div class="issue-description">${esc(issue)}</div></div>`;
+  }
+  const before = issue.codeBefore || '';
+  const after  = issue.codeAfter  || '';
+  const codeBlocks = (before || after) ? `
+    <div class="code-diff">
+      ${before ? `<div class="code-diff-block code-diff-before">
+        <div class="code-diff-label">Before</div>
+        <pre class="code-pre"><code>${esc(before)}</code></pre>
+      </div>` : ''}
+      ${after ? `<div class="code-diff-block code-diff-after">
+        <div class="code-diff-label">After</div>
+        <pre class="code-pre"><code>${esc(after)}</code></pre>
+      </div>` : ''}
+    </div>` : '';
+  return `
+    <div class="issue-block">
+      ${issue.description ? `<div class="issue-description">${esc(issue.description)}</div>` : ''}
+      ${issue.suggestion  ? `<div class="issue-suggestion">↳ ${esc(issue.suggestion)}</div>`  : ''}
+      ${codeBlocks}
+    </div>`;
+}
+
+function renderAll(isPro) {
+  // toggle buttons
+  document.getElementById('btn-free').classList.toggle('active', !isPro);
+  document.getElementById('btn-pro').classList.toggle('active',  isPro);
+
+  const r = MOCK_REPORT;
+  const score = r.riskScore;
+  const levelLC = r.riskLevel.toLowerCase();
+  const scoreColor = levelLC==='high' ? 'color-high' : levelLC==='medium' ? 'color-medium' : 'color-low';
+  const chipBg     = levelLC==='high' ? 'bg-high'    : levelLC==='medium' ? 'bg-medium'    : 'bg-low';
+  const conf       = score>=66 ? 'LOW' : score>=26 ? 'MEDIUM' : 'HIGH';
+  const confColor  = conf==='HIGH' ? 'color-low' : conf==='MEDIUM' ? 'color-medium' : 'color-high';
+  const confDesc   = conf==='HIGH' ? 'Safe to merge with review' : conf==='MEDIUM' ? 'Review recommended' : 'Significant review needed';
+  const rel        = score>=80 ? 'CRITICAL' : score>=60 ? 'HIGH' : score>=30 ? 'MEDIUM' : 'LOW';
+  const relColor   = (rel==='CRITICAL'||rel==='HIGH') ? 'color-high' : rel==='MEDIUM' ? 'color-medium' : 'color-low';
+  const relDesc    = rel==='CRITICAL' ? 'Block release, fix critical issues' : rel==='HIGH' ? 'Address issues before releasing' : rel==='MEDIUM' ? 'Monitor after release' : 'Low risk — proceed normally';
+
+  const sevs = ['Critical','High','High','Medium','Medium'];
+  const priorityRows = r.topIssues.slice(0,5).map((t,i)=>`
+    <div class="suggestion-item">
+      <span class="sev-badge sev-${sevs[i]}">${sevs[i]}</span>
+      <span class="suggestion-text">${esc(t)}</span>
+    </div>`).join('');
+
+  const FREE_LIMIT = 5;
+  const visFiles = isPro ? r.fileSuggestions : r.fileSuggestions.slice(0, FREE_LIMIT);
+  const lockedCount = isPro ? 0 : Math.max(0, r.fileSuggestions.length - FREE_LIMIT);
+
+  const fileRows = visFiles.map(f=>`
+    <div class="file-row">
+      <div class="file-row-header">
+        <span class="file-name">${esc(f.file)}</span>
+        <span class="sev-badge sev-${esc(f.severity)}">${esc(f.severity)}</span>
+      </div>
+      <div class="file-issue-list">${(f.issues||[]).map(renderIssueBlock).join('')}</div>
+    </div>`).join('');
+
+  let lockedRows = '';
+  if (!isPro && lockedCount > 0) {
+    for (let i=0; i<Math.min(lockedCount,3); i++) {
+      lockedRows += `<div class="file-row locked-row">
+        <div class="file-row-header">
+          <span class="file-name" style="filter:blur(6px)">████████████/█████████.ts</span>
+          <span class="locked-row-label">🔒 LOCKED</span>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Security heatmap (PRO)
+  const heatmapHTML = isPro ? `
+    <div class="section">
+      <div class="section-title">🛡️ SECURITY HEATMAP</div>
+      <table class="heatmap-table">
+        <thead><tr><th>FILE</th><th>SEV</th><th>FINDING</th><th>CWE</th></tr></thead>
+        <tbody>${r.enhancedSecurityIssues.map(issue=>`
+          <tr>
+            <td style="font-family:monospace;font-size:11px;color:var(--neon-cyan)">${esc(issue.file)}</td>
+            <td><span class="sev-badge sev-${esc(issue.severity)}">${esc(issue.severity)}</span></td>
+            <td>${esc(issue.description)}</td>
+            <td><span class="cwe-tag">${esc(issue.cwe)}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>` : `
+    <div class="section">
+      <div class="section-title">🛡️ SECURITY HEATMAP</div>
+      ${proGate('Security Heatmap','File-level vulnerability map with CWE tags')}
+      ${upgradeBanner(0,1)}
+    </div>`;
+
+  // Breaking changes (PRO)
+  const breakingHTML = isPro ? `
+    <div class="section">
+      <div class="section-title">⚡ BREAKING CHANGES</div>
+      ${r.breakingChanges.map(c=>`
+        <div class="breaking-item ${c.impact}">
+          <div class="breaking-item-label">${esc(c.impact.toUpperCase())}</div>
+          <div class="breaking-item-text">${esc(c.description)}</div>
+        </div>`).join('')}
+    </div>` : `
+    <div class="section">
+      <div class="section-title">⚡ BREAKING CHANGES</div>
+      ${proGate('Breaking Change Analysis','Semver impact, API surface changes, migration notes')}
+    </div>`;
+
+  // Test coverage (PRO)
+  const tc = r.testCoverage;
+  const coverageHTML = isPro ? `
+    <div class="section">
+      <div class="section-title">🧪 TEST COVERAGE</div>
+      <span class="coverage-badge coverage-${esc(tc.level)}">${esc(tc.level)}</span>
+      <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">${esc(tc.detail)}</p>
+      <ul class="file-issues" style="margin-top:10px;">${tc.recommendations.map(rec=>`<li>${esc(rec)}</li>`).join('')}</ul>
+    </div>` : `
+    <div class="section">
+      <div class="section-title">🧪 TEST COVERAGE</div>
+      ${proGate('Test Coverage Analysis','Coverage gaps, missing test files, recommendations')}
+    </div>`;
+
+  // Export bar (PRO)
+  const exportHTML = isPro ? `
+    <div class="export-bar">
+      <button class="export-btn">📄 Export PDF</button>
+      <button class="export-btn">📝 Export Markdown</button>
+      <button class="export-btn">{ } Copy JSON</button>
+    </div>` : proGate('Export Report','PDF, Markdown, and JSON export options');
+
+  document.getElementById('report-root').innerHTML = `
+    <!-- Header -->
+    <div class="page-header">
+      <div class="page-title">⚡ PR AUDIT REPORT</div>
+      <div class="snapshot-badge">📸 SNAPSHOT</div>
+    </div>
+
+    <!-- Snapshot bar -->
+    <div class="snapshot-bar">
+      <span class="snapshot-meta-item"><span class="snapshot-meta-label">REPO</span><a href="#">${esc(r.repo)}</a></span>
+      <span class="snapshot-meta-item"><span class="snapshot-meta-label">PR</span><a href="#">${esc(r.prTitle)}</a></span>
+      <span class="snapshot-meta-item"><span class="snapshot-meta-label">SNAPSHOT</span>${esc(fmt(r.generatedAt))}</span>
+      <span class="snapshot-meta-item"><span class="snapshot-meta-label">COMMIT</span><span style="font-family:monospace">${esc(r.commitHash.slice(0,7))}</span></span>
+      <button class="reopen-btn">✕ Close</button>
+    </div>
+
+    <!-- Risk overview -->
+    <div class="section">
+      <div class="section-title">📊 RISK OVERVIEW</div>
+      <div class="risk-grid">
+        <div class="risk-card">
+          <div class="risk-card-label">RISK SCORE</div>
+          <div class="risk-score-value ${scoreColor}">${score}</div>
+          <span class="risk-level-chip ${chipBg}">${esc(r.riskLevel).toUpperCase()}</span>
+        </div>
+        <div class="risk-card">
+          <div class="risk-card-label">MERGE CONFIDENCE</div>
+          <div class="confidence-value ${confColor}">${conf}</div>
+          <div class="confidence-desc">${confDesc}</div>
+        </div>
+        <div class="risk-card">
+          <div class="risk-card-label">RELEASE RISK</div>
+          <div class="release-value ${relColor}">${rel}</div>
+          <div class="release-desc">${relDesc}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-number">${r.filesChanged}</div><div class="stat-label">FILES CHANGED</div></div>
+      <div class="stat-card"><div class="stat-number">${r.securityIssues.length}</div><div class="stat-label">SECURITY ISSUES</div></div>
+      <div class="stat-card"><div class="stat-number">${r.breakingChanges.length}</div><div class="stat-label">BREAKING CHANGES</div></div>
+      <div class="stat-card"><div class="stat-number">${r.totalSuggestions}</div><div class="stat-label">TOTAL SUGGESTIONS</div></div>
+    </div>
+
+    <!-- Priority actions -->
+    <div class="section">
+      <div class="section-title">🔥 PRIORITY ACTIONS</div>
+      ${priorityRows}
+    </div>
+
+    <!-- File analysis -->
+    <div class="section">
+      <div class="section-title">📁 FILE-LEVEL ANALYSIS</div>
+      ${fileRows}
+      ${lockedRows}
+      ${(!isPro && lockedCount > 0) ? upgradeBanner(FREE_LIMIT, r.fileSuggestions.length) : ''}
+    </div>
+
+    ${heatmapHTML}
+    ${breakingHTML}
+    ${coverageHTML}
+    ${exportHTML}
+  `;
+}
+
+// Initial render — FREE view
+renderAll(false);
+</script>
+</body>
+</html>

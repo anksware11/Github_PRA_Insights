@@ -1,0 +1,826 @@
+/* ============================================================================
+   STYLES.CSS - All styling for PR Quick Insight extension
+   Includes styles for:
+   - Floating panel (right side of GitHub PR page)
+   - Popup window (settings)
+   - Loading spinner
+   - Results display
+   ============================================================================ */
+
+/* ============================================================================
+   FLOATING PANEL - Main styles for the panel on GitHub PR pages
+   ============================================================================ */
+
+#pr-quick-insight-panel {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  width: 350px;
+  max-height: 80vh;
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(140, 149, 159, 0.2);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #24292e;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Panel header with close button */
+.prs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e1e4e8;
+  background: #f6f8fa;
+}
+
+.prs-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #24292e;
+}
+
+.prs-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6a737d;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.prs-close-btn:hover {
+  background-color: #e1e4e8;
+  color: #24292e;
+}
+
+/* Panel content area */
+.prs-content {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.prs-analyze-btn,
+.prs-reset-btn,
+.prs-button {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background: white;
+  color: #24292e;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.prs-analyze-btn:hover,
+.prs-button-primary:hover {
+  background: #f6f8fa;
+  border-color: #d1d5da;
+}
+
+.prs-analyze-btn:active,
+.prs-button-primary:active {
+  background: #e1e4e8;
+}
+
+.prs-button-primary {
+  background: #238636;
+  color: white;
+  border-color: #238636;
+}
+
+.prs-button-primary:hover {
+  background: #2ea043;
+  border-color: #2ea043;
+}
+
+.prs-reset-btn {
+  margin-top: 16px;
+  border-color: #d1d5da;
+  font-size: 13px;
+}
+
+/* ============================================================================
+   LOADING SPINNER
+   ============================================================================ */
+
+.prs-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.prs-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #238636;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.prs-loading p {
+  color: #6a737d;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ============================================================================
+   RESULTS DISPLAY
+   ============================================================================ */
+
+.prs-results {
+  max-height: calc(80vh - 160px);
+  overflow-y: auto;
+}
+
+.prs-summary-section,
+.prs-risk-section,
+.prs-issues-section {
+  margin-bottom: 20px;
+}
+
+.prs-summary-section h3,
+.prs-risk-section h3,
+.prs-issues-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #24292e;
+}
+
+.prs-summary-section ul,
+.prs-issues-section ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.prs-summary-section li,
+.prs-issues-section li {
+  margin-bottom: 8px;
+  color: #24292e;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+/* Risk level styling */
+.prs-risk-level {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: center;
+  font-size: 14px;
+}
+
+.prs-risk-low {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.prs-risk-medium {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.prs-risk-high {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* ============================================================================
+   ERROR MESSAGE
+   ============================================================================ */
+
+.prs-error {
+  padding: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.prs-warning {
+  padding: 12px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   QUALITY BADGES (GOOD/FAIR/POOR/etc)
+   ============================================================================ */
+
+.prs-status-badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: center;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.prs-status-good {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.prs-status-fair {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.prs-status-poor {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.prs-status-not-testable {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #a5b4fc;
+}
+
+.prs-status-could-be-clearer {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.prs-status-needs-improvement {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.prs-status-not-applicable {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* ============================================================================
+   QUALITY SECTION
+   ============================================================================ */
+
+.prs-quality-section {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.prs-quality-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #24292e;
+}
+
+/* ============================================================================
+   SECURITY & BREAKING CHANGES SECTIONS
+   ============================================================================ */
+
+.prs-security-section,
+.prs-breaking-section {
+  margin-bottom: 20px;
+}
+
+.prs-security-section h3,
+.prs-breaking-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #24292e;
+}
+
+.prs-security-section ul,
+.prs-breaking-section ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.prs-security-section li,
+.prs-breaking-section li {
+  margin-bottom: 8px;
+  color: #24292e;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+/* ============================================================================
+   SUGGESTED COMMIT MESSAGE
+   ============================================================================ */
+
+.prs-suggested-commit-section {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #eef6ff;
+  border-left: 4px solid #0969da;
+  border-radius: 4px;
+}
+
+.prs-suggested-commit-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0969da;
+}
+
+#prs-suggested-commit {
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #0969da;
+  word-break: break-word;
+}
+
+/* ============================================================================
+   POPUP STYLES (extension popup window)
+   ============================================================================ */
+
+body.prs-popup {
+  width: 450px;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: white;
+  color: #24292e;
+}
+
+.prs-popup-container {
+  padding: 24px;
+}
+
+.prs-popup-container h1 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #24292e;
+}
+
+.prs-popup-content {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.prs-instructions {
+  color: #6a737d;
+  margin-bottom: 20px;
+}
+
+.prs-form-group {
+  margin-bottom: 20px;
+}
+
+.prs-form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #24292e;
+}
+
+.prs-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: monospace;
+}
+
+.prs-input:focus {
+  outline: none;
+  border-color: #0969da;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+}
+
+.prs-form-group small {
+  display: block;
+  color: #6a737d;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.prs-popup-message {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.prs-message-success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.prs-message-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.prs-message-info {
+  background: #dbeafe;
+  color: #0c4a6e;
+  border: 1px solid #7dd3fc;
+}
+
+.prs-info-section {
+  background: #f6f8fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 20px;
+}
+
+.prs-info-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.prs-info-section ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+}
+
+.prs-info-section li {
+  margin-bottom: 6px;
+}
+
+.prs-info-section a {
+  color: #0969da;
+  text-decoration: none;
+}
+
+.prs-info-section a:hover {
+  text-decoration: underline;
+}
+
+.prs-warning-section {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.prs-warning-section p {
+  margin: 0;
+  font-size: 13px;
+  color: #92400e;
+}
+
+/* ============================================================================
+   PLAN BADGE AND LICENSE MANAGEMENT
+   ============================================================================ */
+
+.prs-plan-badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.prs-plan-free {
+  background: #f3f4f6;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.prs-plan-pro {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+/* ============================================================================
+   TAB NAVIGATION
+   ============================================================================ */
+
+.prs-popup-tabs {
+  display: flex;
+  border-bottom: 1px solid #e1e4e8;
+  gap: 0;
+}
+
+.prs-tab-btn {
+  flex: 1;
+  padding: 12px 16px;
+  background: #f6f8fa;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #586069;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.prs-tab-btn:hover {
+  background: #f0f3f6;
+  color: #24292e;
+}
+
+.prs-tab-btn.prs-tab-active {
+  border-bottom-color: #0969da;
+  color: #0969da;
+  background: white;
+}
+
+.prs-tab-content {
+  display: none;
+}
+
+.prs-tab-content.prs-tab-active {
+  display: block;
+}
+
+/* ============================================================================
+   LICENSE STATUS DISPLAY
+   ============================================================================ */
+
+.prs-license-status {
+  background: #f0f3f6;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.prs-status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+.prs-status-item:not(:last-child) {
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.prs-status-label {
+  font-weight: 600;
+  color: #586069;
+}
+
+.prs-status-value {
+  color: #24292e;
+  font-family: 'Courier New', monospace;
+}
+
+/* ============================================================================
+   BUTTON GROUPS
+   ============================================================================ */
+
+.prs-button-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.prs-button-group .prs-button {
+  flex: 1;
+}
+
+.prs-button-secondary {
+  background: white;
+  color: #0969da;
+  border: 1px solid #0969da;
+}
+
+.prs-button-secondary:hover {
+  background: #f0f3f6;
+}
+
+.prs-button-outline {
+  background: white;
+  color: #0969da;
+  border: 1px solid #0969da;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  width: 100%;
+}
+
+.prs-button-outline:hover {
+  background: #f0f3f6;
+}
+
+/* ============================================================================
+   FEATURES LIST
+   ============================================================================ */
+
+.prs-features-section {
+  margin: 20px 0;
+  padding: 12px;
+  background: #f0f3f6;
+  border-radius: 6px;
+}
+
+.prs-features-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #24292e;
+}
+
+.prs-features-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.prs-features-list li {
+  padding: 6px 0;
+  font-size: 13px;
+  color: #586069;
+}
+
+/* ============================================================================
+   UPGRADE SECTION
+   ============================================================================ */
+
+.prs-upgrade-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+}
+
+.prs-upgrade-title {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3fb950;
+  letter-spacing: 0.3px;
+}
+
+.prs-upgrade-description {
+  margin: 0 0 14px 0;
+  font-size: 12px;
+  color: #8b949e;
+  line-height: 1.5;
+}
+
+.prs-upgrade-section .prs-features-list {
+  margin-bottom: 16px;
+}
+
+.prs-upgrade-section .prs-features-list li {
+  color: #c9d1d9;
+  font-size: 12px;
+}
+
+.prs-button-pro {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+  color: #ffffff;
+  border: 1px solid #2ea043;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 4px rgba(46, 160, 67, 0.3);
+}
+
+.prs-button-pro:hover {
+  background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
+  border-color: #3fb950;
+  box-shadow: 0 2px 8px rgba(63, 185, 80, 0.4);
+  transform: translateY(-1px);
+}
+
+.prs-button-pro:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ============================================================================
+   CODE BLOCK
+   ============================================================================ */
+
+.prs-code-block {
+  display: block;
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 3px;
+  padding: 8px;
+  margin: 8px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #24292e;
+  overflow-x: auto;
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING (webkit browsers)
+   ============================================================================ */
+
+#pr-quick-insight-panel::-webkit-scrollbar,
+.prs-results::-webkit-scrollbar {
+  width: 8px;
+}
+
+#pr-quick-insight-panel::-webkit-scrollbar-track,
+.prs-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#pr-quick-insight-panel::-webkit-scrollbar-thumb,
+.prs-results::-webkit-scrollbar-thumb {
+  background: #d0d7de;
+  border-radius: 4px;
+}
+
+#pr-quick-insight-panel::-webkit-scrollbar-thumb:hover,
+.prs-results::-webkit-scrollbar-thumb:hover {
+  background: #bdc4cc;
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================ */
+
+@media (max-width: 1200px) {
+  #pr-quick-insight-panel {
+    width: 320px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  #pr-quick-insight-panel {
+    width: 90vw;
+    right: 5vw;
+    left: auto;
+  }
+}

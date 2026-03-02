@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "functions": {
+    "api/stripe-webhook.js": {
+      "memory": 128,
+      "maxDuration": 10
+    },
+    "api/lemonsqueezy-webhook.js": {
+      "memory": 128,
+      "maxDuration": 10
+    },
+    "api/gumroad-webhook.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  }
+}

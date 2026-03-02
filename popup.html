@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PR Quick Insight - Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="prs-popup">
+  <div class="prs-popup-container">
+    <h1>PR Quick Insight</h1>
+
+    <!-- Plan Status Badge -->
+    <div id="planBadge" class="prs-plan-badge prs-plan-free">
+      <span id="planText">📦 Free Plan</span>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="prs-popup-tabs">
+      <button id="tabApi" class="prs-tab-btn prs-tab-active" data-tab="api">API Key</button>
+      <button id="tabLicense" class="prs-tab-btn" data-tab="license">License</button>
+    </div>
+
+    <div class="prs-popup-content">
+      <!-- API Key Tab -->
+      <div id="apiTab" class="prs-tab-content prs-tab-active">
+        <p class="prs-instructions">
+          Enter your OpenAI API key to get started with PR analysis.
+        </p>
+
+        <div class="prs-form-group">
+          <label for="apiKeyInput">OpenAI API Key</label>
+          <input
+            type="password"
+            id="apiKeyInput"
+            placeholder="sk-..."
+            class="prs-input"
+          >
+          <small>Your key is stored locally and never sent to external servers.</small>
+        </div>
+
+        <button id="saveBtnPopup" class="prs-button prs-button-primary">
+          Save API Key
+        </button>
+
+        <div id="popupMessage" class="prs-popup-message" style="display: none;"></div>
+
+        <div class="prs-info-section">
+          <h3>How to get your API key</h3>
+          <ol>
+            <li>Visit <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API Keys</a></li>
+            <li>Create a new API key</li>
+            <li>Copy and paste it here</li>
+            <li>Click "Save API Key"</li>
+          </ol>
+        </div>
+
+        <div class="prs-warning-section">
+          <p>⚠️ Keep your API key secret. Never share it with others.</p>
+        </div>
+      </div>
+
+      <!-- License Tab -->
+      <div id="licenseTab" class="prs-tab-content">
+
+        <!-- License Status (shown when a license is active) -->
+        <div id="licenseStatus" class="prs-license-status" style="display: none;">
+          <div class="prs-status-item">
+            <span class="prs-status-label">Plan:</span>
+            <span id="statusPlan" class="prs-status-value">Free Plan</span>
+          </div>
+          <div class="prs-status-item">
+            <span class="prs-status-label">License:</span>
+            <span id="statusLicense" class="prs-status-value">••••••••••••••</span>
+          </div>
+        </div>
+
+        <!-- License Input (shown when no license is active) -->
+        <div id="licenseInput" class="prs-form-group">
+          <label for="licenseKeyInput">License Key</label>
+          <input
+            type="password"
+            id="licenseKeyInput"
+            placeholder="Paste your license key here"
+            class="prs-input"
+          >
+        </div>
+
+        <div class="prs-button-group">
+          <button id="saveLicenseBtnPopup" class="prs-button prs-button-primary">
+            Activate License
+          </button>
+          <button id="removeLicenseBtnPopup" class="prs-button prs-button-secondary" style="display: none;">
+            Remove License
+          </button>
+        </div>
+
+        <div id="licenseMessage" class="prs-popup-message" style="display: none;"></div>
+
+        <!-- Unlock Pro Access -->
+        <div class="prs-upgrade-section">
+          <h3 class="prs-upgrade-title">Unlock Pro Access</h3>
+          <p class="prs-upgrade-description">Upgrade to Pro to unlock advanced PR intelligence features.</p>
+
+          <ul class="prs-features-list">
+            <li>✨ Auto-generate better commit messages</li>
+            <li>📊 Full security audit on every PR</li>
+            <li>📈 Scan history &amp; analytics</li>
+            <li>⚡ Breaking change detection</li>
+            <li>🧪 Test coverage analysis</li>
+            <li>♾️ Unlimited scans per day</li>
+          </ul>
+
+          <button id="getProLicenseBtn" class="prs-button prs-button-pro">
+            🚀 Get Pro License
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/utils/storage.js"></script>
+  <script src="src/modules/deviceFingerprint.js"></script>
+  <script src="src/modules/licenseValidator.js"></script>
+  <script src="src/modules/licenseManager.js"></script>
+  <script src="src/modules/usageLimiter.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

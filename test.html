@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PR Quick Insight - Test Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f6f8fa;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin: 0 0 16px 0;
+      color: #24292e;
+    }
+    [data-testid="pull-request-body"] {
+      color: #666;
+      line-height: 1.6;
+      margin: 16px 0;
+      padding: 12px;
+      background: #f6f8fa;
+      border-radius: 4px;
+    }
+    #console-output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      margin-top: 24px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .log-entry {
+      margin-bottom: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid #333;
+    }
+    .log-entry.info { color: #4ec9b0; }
+    .log-entry.log { color: #ce9178; }
+    .log-entry.success { color: #6a9955; }
+    button {
+      background: #238636;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 12px 0;
+    }
+    button:hover {
+      background: #2ea043;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 data-testid="pull-request-title">Fix: Improve performance in data processing</h1>
+
+    <p><strong>Branch:</strong> feature/optimize-data</p>
+
+    <div style="margin: 16px 0; padding: 12px; background: #e6ffed; border-left: 4px solid #238636;">
+      <strong>+142 additions −58 deletions</strong> • 5 files changed
+    </div>
+
+    <div data-testid="pull-request-body">
+This PR optimizes the data processing pipeline by implementing caching mechanisms and reducing unnecessary iterations.
+
+**Changes:**
+- Added Redis caching layer for frequently accessed data
+- Optimized query performance with proper indexing
+- Reduced API response time from 500ms to 150ms
+
+**Testing:**
+- All unit tests pass
+- Performance tests show 70% improvement
+- No breaking changes to API
+
+**Related Issues:**
+- Fixes #123
+- Related to #456
+    </div>
+
+    <!-- Mock file tree structure -->
+    <div style="margin-top: 24px; padding: 16px; background: #f6f8fa; border-radius: 4px;">
+      <h3>Files Changed:</h3>
+      <div data-testid="file-tree-item-wrapper" style="padding: 8px; border-bottom: 1px solid #e1e4e8;">
+        <span data-testid="file-tree-item">src/cache/redis-cache.js</span>
+      </div>
+      <div data-testid="file-tree-item-wrapper" style="padding: 8px; border-bottom: 1px solid #e1e4e8;">
+        <span data-testid="file-tree-item">src/db/query-optimizer.js</span>
+      </div>
+      <div data-testid="file-tree-item-wrapper" style="padding: 8px; border-bottom: 1px solid #e1e4e8;">
+        <span data-testid="file-tree-item">src/utils/helpers.js</span>
+      </div>
+      <div data-testid="file-tree-item-wrapper" style="padding: 8px; border-bottom: 1px solid #e1e4e8;">
+        <span data-testid="file-tree-item">tests/cache.test.js</span>
+      </div>
+      <div data-testid="file-tree-item-wrapper" style="padding: 8px;">
+        <span data-testid="file-tree-item">README.md</span>
+      </div>
+    </div>
+
+    <!-- Mock diff hunks -->
+    <div style="margin-top: 24px; padding: 16px; background: #f6f8fa; border-radius: 4px;">
+      <h3>Sample Diff:</h3>
+      <div data-testid="diff-hunk" style="background: #fff; padding: 12px; margin: 8px 0; border-left: 3px solid #d0d7de; font-family: monospace; font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
++import { cacheManager } from './cache-manager';
++
+ export function processData(input) {
+   const data = parseInput(input);
+-  const result = heavyComputation(data);
+-  return formatOutput(result);
++  const cached = cacheManager.get(data.id);
++  if (cached) return cached;
++  const result = heavyComputation(data);
++  cacheManager.set(data.id, result);
++  return formatOutput(result);
+ }
++
++function heavyComputation(data) {
++  // Optimized algorithm with early exits
++  return data.map(item => processItem(item));
++}
+      </div>
+      <div data-testid="diff-hunk" style="background: #fff; padding: 12px; margin: 8px 0; border-left: 3px solid #d0d7de; font-family: monospace; font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
+ export function optimizedQuery(filters) {
+-  const results = database.query(filters);
++  // Use indexed query for performance
++  const results = database.indexedQuery(filters);
+   return results
+     .filter(item => item.active)
+-    .map(item => item.data);
++    .map(item => ({
++      id: item.id,
++      data: item.data,
++      timestamp: item.ts
++    }));
+ }
+      </div>
+    </div>
+
+    <button onclick="runTest()" style="margin-top: 24px;">Run Test</button>
+    <button onclick="clearConsole()">Clear Console</button>
+
+    <div id="console-output">
+      <div class="log-entry info">Console Output:</div>
+    </div>
+  </div>
+
+  <script>
+    // Mock chrome.storage.local for testing
+    window.chrome = {
+      storage: {
+        local: {
+          get: async (key) => ({ [key]: '' })
+        }
+      }
+    };
+
+    // Capture console logs
+    const consoleLogs = [];
+    const originalLog = console.log;
+    const originalError = console.error;
+
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' ');
+      addLog(message, 'log');
+    };
+
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      const message = args.map(arg => String(arg)).join(' ');
+      addLog('ERROR: ' + message, 'error');
+    };
+
+    function addLog(message, type = 'log') {
+      const output = document.getElementById('console-output');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `> ${message}`;
+      output.appendChild(entry);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById('console-output').innerHTML = '<div class="log-entry info">Console Output:</div>';
+      consoleLogs.length = 0;
+    }
+
+    // Extract PR metadata function (same as in content.js)
+    function extractPRMetadata() {
+      // Extract PR title
+      const titleElement = document.querySelector('[data-testid="pull-request-title"]')
+        || document.querySelector('h1');
+      const title = titleElement?.textContent.trim() || 'Unknown Title';
+
+      // Extract PR description
+      const descriptionElement = document.querySelector('[data-testid="pull-request-body"]')
+        || document.querySelector('.js-comment-container')
+        || document.querySelector('[id^="issue_comment_"] .timeline-comment');
+
+      let description = descriptionElement?.textContent.trim() || '';
+
+      if (!description) {
+        description = '(No description provided)';
+      }
+
+      // Extract list of changed files
+      const files = extractChangedFilesList();
+
+      // Extract additions and deletions statistics
+      const stats = extractAdditionsDeletions();
+
+      // Extract visible diff content
+      const diff = extractDiffContent();
+
+      // Return complete structured object
+      return {
+        title,
+        description,
+        files,
+        filesChanged: files.length,
+        additions: stats.additions,
+        deletions: stats.deletions,
+        diff
+      };
+    }
+
+    // Extract changed files list (same as in content.js)
+    function extractChangedFilesList() {
+      const files = [];
+
+      // Method 1: Try to get files from the file tree using data-testid
+      const fileElements = document.querySelectorAll('[data-testid="file-tree-item-wrapper"]');
+
+      if (fileElements.length > 0) {
+        fileElements.forEach((element) => {
+          const fileNameElement = element.querySelector('[data-testid="file-tree-item"]');
+          if (fileNameElement) {
+            const fileName = fileNameElement.textContent.trim();
+            if (fileName) {
+              files.push(fileName);
+            }
+          }
+        });
+      }
+
+      // Method 2: Fallback if no files found
+      if (files.length === 0) {
+        const fileHeaders = document.querySelectorAll('[data-testid^="file-name"]');
+        fileHeaders.forEach((header) => {
+          const fileName = header.textContent.trim();
+          if (fileName) {
+            files.push(fileName);
+          }
+        });
+      }
+
+      // Method 3: Last resort - look for diff file headers
+      if (files.length === 0) {
+        const diffHeaders = document.querySelectorAll('[data-testid="diff-file-header"]');
+        diffHeaders.forEach((header) => {
+          const fileName = header.textContent.trim();
+          if (fileName) {
+            files.push(fileName);
+          }
+        });
+      }
+
+      return files;
+    }
+
+    // Extract additions and deletions (same as in content.js)
+    function extractAdditionsDeletions() {
+      let additions = 0;
+      let deletions = 0;
+
+      // Method 1: Search for stats in page text
+      const statsText = document.body.textContent;
+
+      // Look for additions (e.g., "+142 additions")
+      const addMatch = statsText.match(/\+(\d+)\s+(additions?)/i)
+        || statsText.match(/(\d+)\s+additions?/i);
+      if (addMatch) {
+        additions = parseInt(addMatch[1], 10);
+      }
+
+      // Look for deletions (e.g., "−58 deletions")
+      const delMatch = statsText.match(/−(\d+)\s+(deletions?)/i)
+        || statsText.match(/-(\d+)\s+(deletions?)/i)
+        || statsText.match(/(\d+)\s+deletions?/i);
+      if (delMatch) {
+        deletions = parseInt(delMatch[1], 10);
+      }
+
+      return {
+        additions,
+        deletions
+      };
+    }
+
+    // Extract diff content (same as in content.js)
+    function extractDiffContent() {
+      let diffText = '';
+      const maxChars = 10000; // Limit to 10,000 chars
+
+      // Method 1: Extract from diff hunks
+      const diffSections = document.querySelectorAll('[data-testid="diff-hunk"]');
+
+      if (diffSections.length > 0) {
+        diffSections.forEach((section) => {
+          if (diffText.length < maxChars) {
+            diffText += section.textContent + '\n\n';
+          }
+        });
+      }
+
+      // Method 2: Fallback - individual diff lines
+      if (diffText.length === 0) {
+        const diffLines = document.querySelectorAll('[data-testid^="diff-line"]');
+        diffLines.forEach((line) => {
+          if (diffText.length < maxChars) {
+            diffText += line.textContent + '\n';
+          }
+        });
+      }
+
+      // Method 3: Last resort - diff container
+      if (diffText.length === 0) {
+        const diffContainer = document.querySelector('[data-testid="diff-container"]')
+          || document.querySelector('[data-testid="split-diff-view"]')
+          || document.querySelector('.diff-view');
+
+        if (diffContainer) {
+          diffText = diffContainer.textContent;
+        }
+      }
+
+      // Clean up: remove extra whitespace
+      diffText = diffText
+        .trim()
+        .replace(/\n\s*\n\s*\n/g, '\n\n');
+
+      // Limit to 10,000 characters
+      diffText = diffText.substring(0, maxChars);
+
+      return diffText;
+    }
+
+    function runTest() {
+      clearConsole();
+      console.log('Starting PR metadata extraction test...');
+
+      const metadata = extractPRMetadata();
+
+      console.log('✅ Test completed successfully!');
+      console.log('PR Metadata:', metadata);
+
+      console.log('\n📋 Extracted Values:');
+      console.log('- Title: ' + metadata.title);
+      console.log('- Description length: ' + metadata.description.length + ' characters');
+      console.log('- Description preview: ' + metadata.description.substring(0, 80) + '...');
+
+      console.log('\n📁 Files Changed:');
+      console.log('- Total files: ' + metadata.filesChanged);
+      metadata.files.forEach((file, index) => {
+        console.log('  ' + (index + 1) + '. ' + file);
+      });
+
+      console.log('\n📊 Statistics:');
+      console.log('- Additions: +' + metadata.additions);
+      console.log('- Deletions: −' + metadata.deletions);
+      console.log('- Total changes: +' + metadata.additions + ' −' + metadata.deletions);
+
+      console.log('\n🔄 Diff Content:');
+      console.log('- Diff length: ' + metadata.diff.length + ' characters');
+      console.log('- Max limit: 10,000 characters');
+      if (metadata.diff.length > 0) {
+        console.log('- Diff preview (first 200 chars):\n' + metadata.diff.substring(0, 200) + '...');
+      } else {
+        console.log('- No diff content extracted');
+      }
+    }
+
+    // Auto-run test when page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      addLog('Page loaded. Click "Run Test" to test PR extraction.', 'info');
+    });
+  </script>
+</body>
+</html>

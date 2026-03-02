@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "PR Quick Insight",
+  "version": "1.1",
+  "description": "AI-powered GitHub PR analysis with security, breaking changes, and code quality insights",
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "https://github.com/*/*/pull/*",
+    "https://api.prorisk.com/*",
+    "https://api.github.com/*"
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PR Quick Insight"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*/pull/*"],
+      "js": [
+        "src/utils/storage.js",
+        "src/utils/colors.js",
+        "src/utils/html.js",
+        "src/modules/deviceFingerprint.js",
+        "src/modules/licenseValidator.js",
+        "src/modules/licenseManager.js",
+        "src/modules/usageLimiter.js",
+        "src/modules/prHistory.js",
+        "src/modules/planManager.js",
+        "src/modules/usageTracker.js",
+        "src/core/riskEngine.js",
+        "src/ui/badges.js",
+        "src/ui/riskometer.js",
+        "src/ui/panels.js",
+        "src/ui/uiRenderer.js",
+        "src/ui/proLockWrapper.js",
+        "src/ui/upgradeModal.js",
+        "src/ui/proFeatureGate.js",
+        "content.js"
+      ],
+      "css": ["premium-styles.css"]
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["report.html", "report.js"],
+      "matches": ["https://github.com/*"]
+    }
+  ]
+}
+
