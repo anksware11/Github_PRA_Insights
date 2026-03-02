@@ -2,7 +2,6 @@
 
 const crypto = require("crypto");
 const { Resend } = require("resend");
-const { saveUserLicenseMapping } = require("./_lib/user-mapping");
 module.exports.config = {
   api: {
     bodyParser: false,
@@ -38,12 +37,17 @@ function safeCompareHex(leftHex, rightHex) {
 }
 
 function verifyLemonSignature(rawBody, headerSignature, webhookSecret) {
+  const normalizedHeaderSignature = headerSignature
+    .replace(/^sha256=/i, "")
+    .trim()
+    .toLowerCase();
+
   const expected = crypto
     .createHmac("sha256", webhookSecret)
     .update(rawBody)
     .digest("hex");
 
-  return safeCompareHex(expected, headerSignature);
+  return safeCompareHex(expected, normalizedHeaderSignature);
 }
 
 function generateLicenseKey(email, licenseSecret) {
@@ -63,41 +67,21 @@ async function sendLicenseEmail({ resendApiKey, from, to, licenseKey }) {
     subject: "🎉 Your PR Audit Pro License",
     html: `
       <p>Thank you for purchasing PR Audit Pro.</p>
-      <p>Your lifetime license key:</p>
+      <p>Your lifetime license key is ready:</p>
       <p><code>${licenseKey}</code></p>
-      <p>Activation instructions:</p>
+      <p><strong>Activation instructions</strong></p>
       <ol>
         <li>Open the PR Audit Pro extension.</li>
-        <li>Go to license activation.</li>
-        <li>Paste the key and click Activate.</li>
+        <li>Open the license activation screen.</li>
+        <li>Paste this license key and click Activate.</li>
       </ol>
-      <p>Need help? Reply to this email for support.</p>
+      <p>If you need help, reply to this email and our support team will assist you.</p>
     `,
   });
 
   if (error) {
     throw new Error(error.message || "Resend email failed");
   }
-}
-
-function extractAppUserId(payload) {
-  const candidates = [
-    payload?.meta?.custom_data?.user_id,
-    payload?.meta?.custom?.user_id,
-    payload?.meta?.checkout_data?.custom?.user_id,
-  ];
-
-  for (const candidate of candidates) {
-    if (typeof candidate === "string" && candidate.trim()) {
-      return candidate.trim();
-    }
-
-    if (typeof candidate === "number" && Number.isFinite(candidate)) {
-      return String(candidate);
-    }
-  }
-
-  return null;
 }
 
 async function handler(req, res) {
@@ -154,11 +138,6 @@ async function handler(req, res) {
     return res.status(200).json({ received: true });
   }
 
-  const appUserId = extractAppUserId(body);
-  if (!appUserId) {
-    console.warn("[ls-webhook] Missing custom user_id in Lemon payload");
-  }
-
   const licenseKey = generateLicenseKey(email, licenseSecret);
 
   try {
@@ -169,26 +148,14 @@ async function handler(req, res) {
       licenseKey,
     });
 
-    if (appUserId) {
-      const mapResult = await saveUserLicenseMapping({
-        userId: appUserId,
-        email,
-        licenseKey,
-        source: "lemonsqueezy",
-      });
-      console.log("[ls-webhook] User mapping stored", {
-        appUserId,
-        storage: mapResult.storage,
-      });
-    }
-
     console.log("[ls-webhook] License email sent", {
-      appUserId,
       email,
       event: body?.meta?.event_name,
     });
   } catch (err) {
-    console.error("[ls-webhook] Failed to send license email");
+    console.error("[ls-webhook] Failed to process order_created", {
+      event: body?.meta?.event_name,
+    });
     return res.status(500).json({ error: "License email delivery failed" });
   }
 

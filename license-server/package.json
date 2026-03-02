@@ -1,15 +1,16 @@
 {
   "name": "pr-audit-license-server",
   "version": "1.0.0",
+  "description": "Minimal production Lemon Squeezy webhook server for license delivery",
   "private": true,
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "start": "vercel dev"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18 <23"
   },
   "dependencies": {
-    "resend": "^4.6.0",
-    "stripe": "^18.4.0"
+    "resend": "^4.6.0"
   }
 }
