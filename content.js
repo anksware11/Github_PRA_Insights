@@ -56,6 +56,8 @@ async function initializeExtension() {
 
   console.log('Initializing PR Quick Insight...');
 
+  await captureAndStoreAppUserId();
+
   // Check for storage version and perform migration if needed
   try {
     const stored = await chrome.storage.local.get('storageVersion');
@@ -162,6 +164,37 @@ async function initializeExtension() {
 
   // Set up event listeners
   setupEventListeners();
+}
+
+async function captureAndStoreAppUserId() {
+  try {
+    const appUserId = extractGitHubUserId();
+    if (!appUserId) {
+      return;
+    }
+
+    await chrome.storage.local.set({ appUserId });
+    console.log('[Content] Stored app user ID for checkout:', appUserId);
+  } catch (error) {
+    console.warn('[Content] Failed to store app user ID:', error);
+  }
+}
+
+function extractGitHubUserId() {
+  const candidates = [
+    document.querySelector('meta[name="user-login"]')?.getAttribute('content'),
+    document.documentElement?.getAttribute('data-login')
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const trimmed = candidate.trim();
+    if (/^[a-zA-Z0-9-]{1,39}$/.test(trimmed)) {
+      return trimmed;
+    }
+  }
+
+  return null;
 }
 
 // ============================================================================

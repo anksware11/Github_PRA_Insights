@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 // TAB NAVIGATION
 // ============================================================================
 
+const UPGRADE_CHECKOUT_URL = 'https://prorisk.com/upgrade';
+const LICENSE_LOOKUP_URL_DEFAULT = 'https://api.prorisk.com/api/license-by-user';
+
 function setupTabNavigation() {
   const tabButtons = document.querySelectorAll('.prs-tab-btn');
 
@@ -93,9 +96,32 @@ function setupEventListeners() {
   // Get Pro License — opens payment page in a new tab
   const getProBtn = document.getElementById('getProLicenseBtn');
   if (getProBtn) {
-    getProBtn.addEventListener('click', () => {
-      chrome.tabs.create({ url: 'https://prorisk.com/upgrade' });
+    getProBtn.addEventListener('click', async () => {
+      const checkoutUrl = await getUpgradeCheckoutUrl();
+      chrome.tabs.create({ url: checkoutUrl });
     });
+  }
+}
+
+async function getUpgradeCheckoutUrl() {
+  try {
+    const { appUserId } = await chrome.storage.local.get(['appUserId']);
+    return appendCheckoutUserId(UPGRADE_CHECKOUT_URL, appUserId);
+  } catch (error) {
+    console.warn('[Popup] Failed to load app user ID for checkout:', error);
+    return UPGRADE_CHECKOUT_URL;
+  }
+}
+
+function appendCheckoutUserId(baseUrl, appUserId) {
+  try {
+    const url = new URL(baseUrl);
+    if (typeof appUserId === 'string' && appUserId.trim()) {
+      url.searchParams.set('checkout[custom][user_id]', appUserId.trim());
+    }
+    return url.toString();
+  } catch {
+    return baseUrl;
   }
 }
 
@@ -167,7 +193,7 @@ async function saveApiKey() {
 // LOAD LICENSE STATUS
 // ============================================================================
 
-async function loadLicenseStatus() {
+async function loadLicenseStatus({ allowAutoRecovery = true } = {}) {
   try {
     const licenseInfo = await LicenseManager.getLicenseInfo();
 
@@ -187,11 +213,83 @@ async function loadLicenseStatus() {
       }
     }
 
+    if (!licenseInfo.isActive && allowAutoRecovery) {
+      const recovered = await tryAutoRecoverLicenseByUserId();
+      if (recovered) {
+        return loadLicenseStatus({ allowAutoRecovery: false });
+      }
+    }
+
     updatePlanBadge(licenseInfo.plan);
     updateLicenseStatus(licenseInfo);
   } catch (error) {
     console.error('[Popup] Error loading license status:', error);
     updatePlanBadge('FREE');
+  }
+}
+
+async function tryAutoRecoverLicenseByUserId() {
+  try {
+    if (typeof LicenseValidator === 'undefined') {
+      return false;
+    }
+
+    const {
+      appUserId,
+      licenseLookupUrl,
+      licenseLookupToken
+    } = await chrome.storage.local.get(['appUserId', 'licenseLookupUrl', 'licenseLookupToken']);
+
+    if (typeof appUserId !== 'string' || !appUserId.trim()) {
+      return false;
+    }
+
+    const baseUrl = typeof licenseLookupUrl === 'string' && licenseLookupUrl.trim()
+      ? licenseLookupUrl.trim()
+      : LICENSE_LOOKUP_URL_DEFAULT;
+
+    const url = new URL(baseUrl);
+    url.searchParams.set('user_id', appUserId.trim());
+
+    const headers = {};
+    if (typeof licenseLookupToken === 'string' && licenseLookupToken.trim()) {
+      headers.Authorization = `Bearer ${licenseLookupToken.trim()}`;
+      headers['x-api-key'] = licenseLookupToken.trim();
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers
+    });
+
+    if (response.status === 404) {
+      return false;
+    }
+
+    if (!response.ok) {
+      console.warn('[Popup] License lookup request failed:', response.status);
+      return false;
+    }
+
+    const payload = await response.json();
+    const licenseKey = payload?.licenseKey;
+
+    if (!payload?.found || typeof licenseKey !== 'string' || !licenseKey.trim()) {
+      return false;
+    }
+
+    const validation = await LicenseValidator.validateLicense(licenseKey.trim());
+    if (!validation.isValid) {
+      console.warn('[Popup] Auto-recovered license is invalid');
+      return false;
+    }
+
+    await LicenseValidator.storeLicense(validation, licenseKey.trim());
+    showMessage('✓ Pro license auto-activated from your purchase', 'success', 'licenseMessage');
+    return true;
+  } catch (error) {
+    console.warn('[Popup] Auto license recovery failed:', error.message || error);
+    return false;
   }
 }
 

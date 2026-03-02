@@ -1,6 +1,30 @@
-# PR Quick Insight - Chrome Extension
+# AI GitHub PR Analyzer
 
 A lightweight Chrome extension that analyzes GitHub Pull Requests using OpenAI's API to provide quick insights, risk assessment, and potential issues.
+
+## Product Details
+
+### AI GitHub PR Analyzer
+
+Analyze GitHub pull requests with AI-powered risk detection, security checks, and actionable review guidance directly in your browser.
+
+## Pricing
+
+- Free Plan: Limited daily scans
+- Pro Plan: $10/month for Unlimited Scans
+
+## Terms & Conditions
+
+Use of this product is governed by our Terms of Service: [TERMS.md](TERMS.md).
+
+## Privacy Policy
+
+Our data handling practices are described in [PRIVACY.md](PRIVACY.md).
+
+## Legal
+
+- Terms of Service: [TERMS.md](TERMS.md)
+- Privacy Policy: [PRIVACY.md](PRIVACY.md)
 
 ## Features
 

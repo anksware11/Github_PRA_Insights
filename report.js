@@ -6,6 +6,8 @@
 
 (async function () {
 
+  const UPGRADE_CHECKOUT_URL = 'https://prorisk.com/upgrade';
+
   // ──────────────────────────────────────────────────────────────────────────
   // HELPERS
   // ──────────────────────────────────────────────────────────────────────────
@@ -43,6 +45,33 @@
     const el = document.getElementById(id);
     if (el) el.insertAdjacentHTML('beforeend', html);
   }
+
+  async function getUpgradeCheckoutUrl() {
+    try {
+      const { appUserId } = await chrome.storage.local.get(['appUserId']);
+      return appendCheckoutUserId(UPGRADE_CHECKOUT_URL, appUserId);
+    } catch (error) {
+      console.warn('[Report] Failed to load app user ID for checkout:', error);
+      return UPGRADE_CHECKOUT_URL;
+    }
+  }
+
+  function appendCheckoutUserId(baseUrl, appUserId) {
+    try {
+      const url = new URL(baseUrl);
+      if (typeof appUserId === 'string' && appUserId.trim()) {
+        url.searchParams.set('checkout[custom][user_id]', appUserId.trim());
+      }
+      return url.toString();
+    } catch {
+      return baseUrl;
+    }
+  }
+
+  window.openUpgradeCheckout = async function openUpgradeCheckout() {
+    const checkoutUrl = await getUpgradeCheckoutUrl();
+    window.open(checkoutUrl, '_blank');
+  };
 
   // ──────────────────────────────────────────────────────────────────────────
   // LICENSE CHECK  (inline — no dependency on licenseValidator module)
@@ -103,7 +132,7 @@
           <li>Test coverage gap report</li>
           <li>Export to PDF / Markdown</li>
         </ul>
-        <button class="upgrade-cta-btn" onclick="window.open('https://prorisk.com/upgrade','_blank')">
+        <button class="upgrade-cta-btn" onclick="window.openUpgradeCheckout()">
           🚀 Unlock Pro – Lifetime Access
         </button>
       </div>`;

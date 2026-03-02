@@ -2,6 +2,7 @@
 
 const crypto = require("crypto");
 const { Resend } = require("resend");
+const { saveUserLicenseMapping } = require("./_lib/user-mapping");
 module.exports.config = {
   api: {
     bodyParser: false,
@@ -79,6 +80,26 @@ async function sendLicenseEmail({ resendApiKey, from, to, licenseKey }) {
   }
 }
 
+function extractAppUserId(payload) {
+  const candidates = [
+    payload?.meta?.custom_data?.user_id,
+    payload?.meta?.custom?.user_id,
+    payload?.meta?.checkout_data?.custom?.user_id,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate.trim();
+    }
+
+    if (typeof candidate === "number" && Number.isFinite(candidate)) {
+      return String(candidate);
+    }
+  }
+
+  return null;
+}
+
 async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -133,6 +154,11 @@ async function handler(req, res) {
     return res.status(200).json({ received: true });
   }
 
+  const appUserId = extractAppUserId(body);
+  if (!appUserId) {
+    console.warn("[ls-webhook] Missing custom user_id in Lemon payload");
+  }
+
   const licenseKey = generateLicenseKey(email, licenseSecret);
 
   try {
@@ -142,7 +168,25 @@ async function handler(req, res) {
       to: email,
       licenseKey,
     });
-    console.log("[ls-webhook] License email sent");
+
+    if (appUserId) {
+      const mapResult = await saveUserLicenseMapping({
+        userId: appUserId,
+        email,
+        licenseKey,
+        source: "lemonsqueezy",
+      });
+      console.log("[ls-webhook] User mapping stored", {
+        appUserId,
+        storage: mapResult.storage,
+      });
+    }
+
+    console.log("[ls-webhook] License email sent", {
+      appUserId,
+      email,
+      event: body?.meta?.event_name,
+    });
   } catch (err) {
     console.error("[ls-webhook] Failed to send license email");
     return res.status(500).json({ error: "License email delivery failed" });

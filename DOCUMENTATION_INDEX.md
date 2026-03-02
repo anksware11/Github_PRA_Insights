@@ -57,6 +57,12 @@ EXISTING GUIDES:
 📄 README.md (7.4 KB)
    Project overview
 
+📄 TERMS.md
+  Terms of Service
+
+📄 PRIVACY.md
+  Privacy Policy
+
 📄 SETUP_GUIDE.md (2.0 KB)
    Getting started
 
